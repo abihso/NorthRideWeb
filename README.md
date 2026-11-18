@@ -50,7 +50,7 @@ product lines so staff can process and track each purchase.
 
 ## Local development
 
-1. Start the NorthRide backend.
+1. Start the NorthRide backend, or use the deployed Render backend.
 2. Install the web app dependencies with `npm install`.
 3. Set `VITE_API_BASE_URL` if the backend is not at
    `http://localhost:4000/api`. The value should include the `/api` prefix.
@@ -62,9 +62,17 @@ For example, create an `admin-web/.env.local` file containing:
 VITE_API_BASE_URL=http://localhost:4000/api
 ```
 
-The backend must allow the web app's origin in `CLIENT_ORIGINS`. Local backend
-development defaults include `http://localhost:5173` and
-`http://127.0.0.1:5173`.
+To use Render instead, set:
+
+```dotenv
+VITE_API_BASE_URL=https://northride-backend.onrender.com/api
+```
+
+Restart Vite after changing this value. During `npm run dev`, browser requests
+use `/api` on the Vite server, which proxies to `VITE_API_BASE_URL`. This avoids
+browser CORS failures when Render does not allow localhost. The development
+proxy adapts session cookies for local HTTP and rejects cross-origin browser
+requests. It is not included in production builds or `npm run preview`.
 
 ## Build and deployment
 
@@ -76,6 +84,13 @@ backend's `CLIENT_ORIGINS`.
 Production must use HTTPS so the backend's secure session cookie can be sent.
 The API must enable credentialed CORS for the exact admin origin. Do not use a
 wildcard origin with credentialed requests.
+
+If the backend health URL works but login reports a connection failure, inspect
+the browser's OPTIONS request to `/api/login`. An HTTP 500 without CORS headers
+can mean the backend rejected the admin origin before login ran. In the Render
+backend's Environment settings, add the exact deployed admin origin (scheme,
+host, and port, without a path or trailing slash) to the comma-separated
+`CLIENT_ORIGINS`, preserving existing origins, then redeploy the backend.
 
 Only backend-authorized administrator accounts can use the console. The rider
 queue provides private previews of submitted Ghana Card (front and back),

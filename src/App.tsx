@@ -173,8 +173,7 @@ type Section =
 
 const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
 const API_BASE_URL = (
-  configuredApiBaseUrl ||
-  (import.meta.env.DEV ? "http://localhost:4000/api" : "")
+  import.meta.env.DEV ? "/api" : configuredApiBaseUrl || ""
 ).replace(/\/$/, "");
 
 async function apiRequest<T>(
@@ -199,7 +198,7 @@ async function apiRequest<T>(
     });
   } catch {
     throw new Error(
-      `Could not connect to ${API_BASE_URL}${path} (${method}). Check the backend URL and that the server is running.`,
+      `Could not connect to ${API_BASE_URL}${path} (${method}). Check your connection, the backend URL, and whether the backend allows this admin site's origin in CLIENT_ORIGINS.`,
     );
   }
 
